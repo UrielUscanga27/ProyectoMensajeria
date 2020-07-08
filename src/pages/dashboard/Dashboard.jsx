@@ -21,7 +21,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Swal from 'sweetalert2';
+
 
 /*
 function Copyright() {
@@ -226,30 +226,7 @@ export default function Dashboard({ history }) {
           }!`}
       />
 
-      <Button onClick={() => {Swal.mixin({
-  input: 'text',
-  confirmButtonText: 'ok &rarr;',
-  showCancelButton: true,
-  progressSteps: ['1', '2', '3']
-}).queue([
-  {
-    title: 'Usuario Nuevo',
-  
-  },
-  'Password',
-  'Validacion de Password'
-]).then((result) => {
-  if (result.value) {
-    const answers = JSON.stringify(result.value)
-    Swal.fire({
-      title: 'Usuario agregado',
-      html: `
-      
-      `,
-      confirmButtonText: 'ok!'
-    })
-  }
-})}}
+      <Button
         type="submit"
         // fullWidth
         variant="contained"
@@ -285,7 +262,7 @@ export default function Dashboard({ history }) {
                     <TableBody>
                       {listaUsuarios.map((user) => (
                         <TableRow key={user.name}>
-                          <TableCell onClick={() => {Swal.fire(getInfoUser(user.name))}} component="th" scope="row">
+                          <TableCell  component="th" scope="row">
                             
                            
                             {user.name}
