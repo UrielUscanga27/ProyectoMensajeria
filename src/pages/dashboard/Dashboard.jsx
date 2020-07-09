@@ -164,6 +164,7 @@ export default function Dashboard({ history }) {
   const BASEURL = "https://matrix.imperiomonarcas.com";
   const ENDPOINT_USER = "/_synapse/admin/v2/users";
   const ENDPOINT_ALLUSERS = "/_synapse/admin/v2/users?deactivated=true";
+  const ENDPOINT_DESACTIVAR = "/_synapse/admin/v1/deactivate";
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const classes = useStyles();
@@ -233,6 +234,31 @@ export default function Dashboard({ history }) {
       );
       if (response.data) {
         setUsuarioSelec(response.data);
+      }
+    } catch (error) {
+      const mensaje_detallado = error.response.data.error;
+      setErrorMessage(mensaje_detallado);
+      setHasError(true);
+      console.error(mensaje_detallado);
+    }
+  }
+
+  /*
+   *FUNCION OCUPADA PARA CONSUMIR
+   *EL SERVICIO DE DESACTIVAR UN 
+   *USUARIO DE MATRIX.
+   */
+  async function postDesactivaUser() {
+    try {
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+      const response = await axios.post(
+        `${BASEURL}${ENDPOINT_DESACTIVAR}/${usuarioSelec.name}`,
+        config
+      );
+      if (response.data) {
+        postDesactivaUser(response.data);
       }
     } catch (error) {
       const mensaje_detallado = error.response.data.error;
@@ -346,7 +372,7 @@ export default function Dashboard({ history }) {
                     
                     {!!usuarioSelec.deactivated == 0 ? (
                       <strong>
-                        <button type="button"
+                        <button type="button" onClick={postDesactivaUser}
                          
                         >
                           DESACTIVAR
