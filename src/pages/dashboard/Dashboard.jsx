@@ -22,25 +22,6 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 
-/*
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-*/
-
-/** ESTILOS **/
-
-const drawerWidth = 240;
-
 const useStyles = makeStyles((theme) => ({
   // Estilo de la tabla
   table: {
@@ -137,6 +118,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const drawerWidth = 240;
+
 function getModalStyle() {
   const top = 50 + rand();
   const left = 50 + rand();
@@ -172,6 +155,7 @@ export default function Dashboard({ history }) {
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   const [mostrandoDetalles, setMostrandoDetalles] = useState(false);
   const [modalStyle] = useState(getModalStyle);
+  const [desactivar, setDesactivar] = useState(0);
 
   const handleDrawerClose = () => {
     setOpen(false);
@@ -245,20 +229,27 @@ export default function Dashboard({ history }) {
 
   /*
    *FUNCION OCUPADA PARA CONSUMIR
-   *EL SERVICIO DE DESACTIVAR UN 
+   *EL SERVICIO DE DESACTIVAR UN
    *USUARIO DE MATRIX.
    */
   async function postDesactivaUser() {
     try {
-      const config = {
-        headers: { Authorization: `Bearer ${token}` },
-      };
-      const response = await axios.post(
-        `${BASEURL}${ENDPOINT_DESACTIVAR}/${usuarioSelec.name}`,
-        config
-      );
-      if (response.data) {
-        postDesactivaUser(response.data);
+      if (!!desactivar && desactivar > 0) {
+        const config = {
+          headers: { Authorization: `Bearer ${token}` },
+        };
+        const response = await axios.post(
+          `${BASEURL}${ENDPOINT_DESACTIVAR}/${usuarioSelec.name}`,
+          {},
+          config
+        );
+        if ((response.data.id_server_unbind_result = "success")) {
+          getUsers();
+          usuarioSelec.deactivated = 1;
+          setDesactivar(0);
+        }
+      } else {
+        setDesactivar(1);
       }
     } catch (error) {
       const mensaje_detallado = error.response.data.error;
@@ -288,7 +279,7 @@ export default function Dashboard({ history }) {
       <AMDrawerPaper
         titulo={`¡Bienvenido ${
           !!userAdmin && !!userAdmin.name ? userAdmin.name : ""
-          }!`}
+        }!`}
       />
 
       <Button
@@ -299,9 +290,7 @@ export default function Dashboard({ history }) {
       >
         Agregar Nuevo usuario
       </Button>
-
       <br></br>
-
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
@@ -328,15 +317,15 @@ export default function Dashboard({ history }) {
                           {!!user && user.admin == 0 ? (
                             <strong>Mensajería</strong>
                           ) : (
-                              <strong>Administrador</strong>
-                            )}
+                            <strong>Administrador</strong>
+                          )}
                         </TableCell>
                         <TableCell align="center">
                           {!!user && user.deactivated == 0 ? (
                             <strong>Activo</strong>
                           ) : (
-                              <i>Inactivo</i>
-                            )}
+                            <i>Inactivo</i>
+                          )}
                         </TableCell>
                         <TableCell align="center">
                           <button
@@ -365,45 +354,50 @@ export default function Dashboard({ history }) {
                     {!!usuarioSelec.admin == 0 ? (
                       <h3>Tipo de usuario: Mensajeria</h3>
                     ) : (
-                         <h3>Tipo de usuario: Administrador</h3>
-                      )}
+                      <h3>Tipo de usuario: Administrador</h3>
+                    )}
                     <h3>Fecha de Creacion: {usuarioSelec.creation_ts}</h3>
                     <h3>Display name: {usuarioSelec.displayname}</h3>
-                    
+
+                    {!!desactivar == 1 ? (
+                      <div>
+                        ¿Nuevamente de click en el botón para confirmar la
+                        acción?
+                      </div>
+                    ) : (
+                      ""
+                    )}
+
                     {!!usuarioSelec.deactivated == 0 ? (
                       <strong>
-                        <button type="button" onClick={postDesactivaUser}
-                         
-                        >
+                        <button type="button" onClick={postDesactivaUser}>
                           DESACTIVAR
-                              </button> </strong>
+                        </button>{" "}
+                      </strong>
                     ) : (
-                        <i><strong>
-                        <button type="button"
-                       
-                        
-                        >
-                          ACTIVAR
-                              </button> </strong></i>
-                      )}
-
+                      <i>
+                        <strong>
+                          <button type="button">ACTIVAR</button>{" "}
+                        </strong>
+                      </i>
+                    )}
                   </div>
                 ) : (
-                    <div>No hay datos del usuario</div>
-                  )}
+                  <div>No hay datos del usuario</div>
+                )}
               </Modal>
             </Grid>
           ) : (
-              <Grid container spacing={1}>
-                <Grid item xs={12} md={12} lg={12}>
-                  <Paper className={classes.paper}>
-                    <div>
-                      <h4>No existen usuarios</h4>
-                    </div>
-                  </Paper>
-                </Grid>
+            <Grid container spacing={1}>
+              <Grid item xs={12} md={12} lg={12}>
+                <Paper className={classes.paper}>
+                  <div>
+                    <h4>No existen usuarios</h4>
+                  </div>
+                </Paper>
               </Grid>
-            )}
+            </Grid>
+          )}
         </Container>
       </main>
     </div>
