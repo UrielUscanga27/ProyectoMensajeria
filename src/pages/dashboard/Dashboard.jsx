@@ -13,15 +13,14 @@ import Orders from "./Orders.jsx";
 import AMDrawerPaper from "../common/AMDrawerPaper";
 import useLocalStorage from "react-use-localstorage";
 import axios from "axios";
-import { Button, ButtonBase } from "@material-ui/core";
+import { Button, ButtonBase, Modal } from "@material-ui/core";
 import PersonIcon from "@material-ui/icons/Person";
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
 
 /*
 function Copyright() {
@@ -38,11 +37,11 @@ function Copyright() {
 }
 */
 
-/** ESTILOS **/ 
+/** ESTILOS **/
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
-
   // Estilo de la tabla
   table: {
     minWidth: 650,
@@ -145,7 +144,9 @@ export default function Dashboard({ history }) {
   const [errorMessage, setErrorMessage] = useState("");
   const classes = useStyles();
   const [open, setOpen] = useState(true);
+
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+  const [mostrandoDetalles, setMostrandoDetalles] = useState(false);
 
   const handleDrawerClose = () => {
     setOpen(false);
@@ -156,16 +157,21 @@ export default function Dashboard({ history }) {
     history.replace("/login");
   };
 
+  const ocultarDetalles = () => {
+    setMostrandoDetalles(false);
+  };
+
   useEffect(() => {
     setUserAdmin(JSON.parse(user));
     getUsers();
   }, []);
 
+  /* ---- ---- ----*/
   /*
-  *FUNCION OCUPADA PARA CONSUMIR 
-  *EL SERVICIO DE ENLISTAR LOS USUARIOS 
-  *DE MATRIX.
- */
+   *FUNCION OCUPADA PARA CONSUMIR
+   *EL SERVICIO DE ENLISTAR LOS USUARIOS
+   *DE MATRIX.
+   */
   async function getUsers() {
     try {
       const config = {
@@ -186,23 +192,22 @@ export default function Dashboard({ history }) {
     }
   }
 
-  
-/*
-  *FUNCION OCUPADA PARA CONSUMIR 
-  *EL SERVICIO DE OBTENER LA
-  *INFORMACION DE LOS USUARIOS 
-  *DE MATRIX.
- */
+  /*
+   *FUNCION OCUPADA PARA CONSUMIR
+   *EL SERVICIO DE OBTENER LA
+   *INFORMACION DE LOS USUARIOS
+   *DE MATRIX.
+   */
   async function getInfoUser(nombreUsuario) {
     try {
       const config = {
         headers: { Authorization: `Bearer ${token}` },
       };
       const response = await axios.get(
-        `${BASEURL}${ENDPOINT_USER}${nombreUsuario}`,
+        `${BASEURL}${ENDPOINT_USER}/${nombreUsuario}`,
         config
       );
-      if (response.data.total > 0) {
+      if (response.data) {
         setUsuarioSelec(response.data);
       }
     } catch (error) {
@@ -213,17 +218,26 @@ export default function Dashboard({ history }) {
     }
   }
 
-/*
-*HEADER DE LA PAGINA 
-*QUE INDICA QUE ADMINISRADOR
-*INICIO SESIÓN
- */
+  const abrirDetallesUsuario = (event) => {
+    event.preventDefault();
+    const { key } = event._targetInst;
+
+    getInfoUser(key);
+    setMostrandoDetalles(true);
+    console.log("test" + key);
+  };
+
+  /*
+   *HEADER DE LA PAGINA
+   *QUE INDICA QUE ADMINISRADOR
+   *INICIO SESIÓN
+   */
   return (
     <div className={classes.root}>
       <AMDrawerPaper
         titulo={`¡Bienvenido ${
           !!userAdmin && !!userAdmin.name ? userAdmin.name : ""
-          }!`}
+        }!`}
       />
 
       <Button
@@ -231,77 +245,89 @@ export default function Dashboard({ history }) {
         // fullWidth
         variant="contained"
         color="primary"
-
       >
         Agregar Nuevo usuario
-              </Button>
+      </Button>
 
       <br></br>
-
-
-
-
 
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
           {!!listaUsuarios ? (
             <Grid container spacing={2}>
-             
-                <TableContainer component={Paper}>
-                  <Table className={classes.table} aria-label="simple table">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Usuario</TableCell>
-                        <TableCell align="right">Status</TableCell>
-                        <TableCell align="right">Administrador</TableCell>
-                        <TableCell align="right">Fecha de creacion</TableCell>
-
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {listaUsuarios.map((user) => (
-                        <TableRow key={user.name}>
-                          <TableCell  component="th" scope="row">
-                            
-                           
-                            {user.name}
-                          </TableCell>
-                          <TableCell align="right" >{!!user && user.deactivated == 0 ? (
+              <TableContainer component={Paper}>
+                <Table className={classes.table} aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="center">Usuario</TableCell>
+                      <TableCell align="center">Tipo de usuario</TableCell>
+                      <TableCell align="center">Estatus del usuario</TableCell>
+                      <TableCell align="center">Detalles de usuario</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {listaUsuarios.map((user) => (
+                      <TableRow key={user.name}>
+                        <TableCell component="th" scope="row" align="center">
+                          {user.name}
+                        </TableCell>
+                        <TableCell align="center">
+                          {" "}
+                          {!!user && user.admin == 0 ? (
+                            <strong>Mensajería</strong>
+                          ) : (
+                            <strong>Administrador</strong>
+                          )}
+                        </TableCell>
+                        <TableCell align="center">
+                          {!!user && user.deactivated == 0 ? (
                             <strong>Activo</strong>
                           ) : (
-                              <i>Inactivo</i>
-                            )}</TableCell>
-                          <TableCell  align="right"> {!!user && user.admin == 0 ? (
-                            <strong>Usuario de mensajería</strong>
-                          ) : (
-                              <strong>Usuario Administrador</strong>
-                            )}</TableCell>
-                          <TableCell align="right">{"..."}</TableCell>
+                            <i>Inactivo</i>
+                          )}
+                        </TableCell>
+                        <TableCell align="center">
+                          <button
+                            type="button"
+                            key={user.name}
+                            onClick={abrirDetallesUsuario}
+                          >
+                            Detalles
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-
-              
+              <Modal
+                open={mostrandoDetalles}
+                onClose={ocultarDetalles}
+                aria-labelledby="simple-modal-title"
+                aria-describedby="simple-modal-description"
+              >
+                {!!usuarioSelec ? (
+                  <div>
+                    <h3>{usuarioSelec.creation_ts}</h3>
+                  </div>
+                ) : (
+                  <div>No hay datos del usuario</div>
+                )}
+              </Modal>
             </Grid>
           ) : (
-              <Grid container spacing={1}>
-                <Grid item xs={12} md={12} lg={12}>
-                  <Paper className={classes.paper}>
-                    <div>
-                      <h4>No existen usuarios</h4>
-                    </div>
-                  </Paper>
-                </Grid>
+            <Grid container spacing={1}>
+              <Grid item xs={12} md={12} lg={12}>
+                <Paper className={classes.paper}>
+                  <div>
+                    <h4>No existen usuarios</h4>
+                  </div>
+                </Paper>
               </Grid>
-
-
-            )}
-
-
+            </Grid>
+          )}
         </Container>
       </main>
     </div>
