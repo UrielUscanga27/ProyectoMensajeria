@@ -125,12 +125,36 @@ const useStyles = makeStyles((theme) => ({
   userCard: {
     cursor: "pointer",
   },
+
+  /* -Estilo para popup -*/
+  paper: {
+    position: "absolute",
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
 }));
+
+function getModalStyle() {
+  const top = 50 + rand();
+  const left = 50 + rand();
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  };
+}
+
+function rand() {
+  return Math.round(Math.random() * 20) - 10;
+}
 
 /*
 Variables y ENDPOINT USADOS
 */
-
 export default function Dashboard({ history }) {
   const [token, setToken] = useLocalStorage("timestamp", null);
   const [user, setUser] = useLocalStorage("user", null);
@@ -144,9 +168,9 @@ export default function Dashboard({ history }) {
   const [errorMessage, setErrorMessage] = useState("");
   const classes = useStyles();
   const [open, setOpen] = useState(true);
-
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   const [mostrandoDetalles, setMostrandoDetalles] = useState(false);
+  const [modalStyle] = useState(getModalStyle);
 
   const handleDrawerClose = () => {
     setOpen(false);
@@ -218,6 +242,7 @@ export default function Dashboard({ history }) {
     }
   }
 
+  /*  === PopUp Usuario ===  */
   const abrirDetallesUsuario = (event) => {
     event.preventDefault();
     const { key } = event._targetInst;
@@ -309,7 +334,7 @@ export default function Dashboard({ history }) {
                 aria-describedby="simple-modal-description"
               >
                 {!!usuarioSelec ? (
-                  <div>
+                  <div style={modalStyle} className={classes.paper}>
                     <h3>{usuarioSelec.creation_ts}</h3>
                   </div>
                 ) : (
