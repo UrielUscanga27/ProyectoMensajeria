@@ -21,6 +21,7 @@ import TableCell from "@material-ui/core/TableCell";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+import Checkbox from '@material-ui/core/Checkbox';
 
 const useStyles = makeStyles((theme) => ({
   // Estilo de la tabla
@@ -145,6 +146,7 @@ export default function Dashboard({ history }) {
   const [listaUsuarios, setListaUsuarios] = useState(null);
   const [usuarioSelec, setUsuarioSelec] = useState(null);
   const BASEURL = "https://matrix.imperiomonarcas.com";
+  const DOMINIO = "imperiomonarcas.com";
   const ENDPOINT_USER = "/_synapse/admin/v2/users";
   const ENDPOINT_ALLUSERS = "/_synapse/admin/v2/users?deactivated=true";
   const ENDPOINT_DESACTIVAR = "/_synapse/admin/v1/deactivate";
@@ -157,6 +159,24 @@ export default function Dashboard({ history }) {
   const [mostrarRegistrar, setMostrarRegistrar] = useState(false);
   const [modalStyle] = useState(getModalStyle);
   const [desactivar, setDesactivar] = useState(0);
+  const [nombreUser, setnombreUser] = useState("");
+  const [passwordUsuario, setpasswordUsuario] = useState("");
+  const [checked, setChecked] = React.useState(true);
+
+  const handleNombreUsuarioChange = (event) => {
+    const { value } = event.currentTarget;
+    console.log(value);
+    setnombreUser(value);
+  };
+  const handlePasswordUsuarioChange = (event) => {
+    const { value } = event.currentTarget;
+    console.log(value);
+    setpasswordUsuario(value);
+  };
+
+  const handleChange = (event) => {
+    setChecked(event.target.checked);
+  };
 
   const handleDrawerClose = () => {
     setOpen(false);
@@ -170,11 +190,17 @@ export default function Dashboard({ history }) {
   const ocultarDetalles = () => {
     setMostrandoDetalles(false);
   };
+  const ocultarRegistrar = () => {
+    setMostrarRegistrar(false);
+  };
 
   useEffect(() => {
     setUserAdmin(JSON.parse(user));
     getUsers();
   }, []);
+
+
+
 
   /* ---- ---- ----*/
   /*
@@ -182,6 +208,7 @@ export default function Dashboard({ history }) {
    *EL SERVICIO DE ENLISTAR LOS USUARIOS
    *DE MATRIX.
    */
+
   async function getUsers() {
     try {
       const config = {
@@ -201,7 +228,11 @@ export default function Dashboard({ history }) {
       console.error(mensaje_detallado);
     }
   }
-
+  const handleClickAgregar = (event) => {
+    event.preventDefault();
+    putAgregar();
+  };
+ 
   /*
    *FUNCION OCUPADA PARA CONSUMIR
    *EL SERVICIO DE OBTENER LA
@@ -260,6 +291,40 @@ export default function Dashboard({ history }) {
     }
   }
 
+
+  /*
+   *FUNCION OCUPADA PARA CONSUMIR
+   *EL SERVICIO DE AGREGAR USUARIOS
+   *A MATRIX.
+   */
+
+  async function putAgregar() {
+    try {
+      const data = {
+        password: passwordUsuario
+      
+      };
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+
+      const response = await axios.put(
+        `${BASEURL}${ENDPOINT_USER}/@${nombreUser}:${DOMINIO}`,data,
+        config
+      );
+      if (response.data) {
+        getUsers()
+      }
+    } catch (error) {
+      const mensaje_detallado = error.response.data.error;
+      setErrorMessage(mensaje_detallado);
+      setHasError(true);
+      console.error(mensaje_detallado);
+    }
+  }
+
+
+
   /*  === PopUp Usuario ===  */
   const abrirDetallesUsuario = (event) => {
     event.preventDefault();
@@ -275,7 +340,7 @@ export default function Dashboard({ history }) {
     event.preventDefault();
     setMostrarRegistrar(true);
     console.log("test");
-  
+
   };
 
 
@@ -294,27 +359,21 @@ export default function Dashboard({ history }) {
           }!`}
       />
 
-      <Button
-        type="submit"
-        // fullWidth
-        variant="contained"
-        color="primary"
-        onClick={abrirRegistrar}
-      >
-        Agregar Nuevo usuario
-      </Button>
 
-      <Modal
-        open={mostrandoDetalles}
-        onClose={ocultarDetalles}
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-      ></Modal>
-
-      
       <br></br>
       <main className={classes.content}>
+
         <div className={classes.appBarSpacer} />
+        <Button
+          type="submit"
+          // fullWidth
+          variant="contained"
+          color="primary"
+          onClick={abrirRegistrar}
+        >
+          Agregar Nuevo usuario
+      </Button>
+
         <Container maxWidth="lg" className={classes.container}>
           {!!listaUsuarios ? (
             <Grid container spacing={2}>
@@ -408,6 +467,7 @@ export default function Dashboard({ history }) {
                     <div>No hay datos del usuario</div>
                   )}
               </Modal>
+
             </Grid>
           ) : (
               <Grid container spacing={1}>
@@ -421,6 +481,32 @@ export default function Dashboard({ history }) {
               </Grid>
             )}
         </Container>
+        <Modal
+          open={mostrarRegistrar}
+          onClose={ocultarRegistrar}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description">
+          <div style={modalStyle} className={classes.paper}>
+            <h3 align="center" >Registrar Usuarios</h3>
+            <label >Nombre del usuario:  </label>
+            <input onChange={handleNombreUsuarioChange} type="text"></input>
+            <p></p>
+            <lebel >Contraseña: </lebel>
+            <input onChange={handlePasswordUsuarioChange} type="password"></input>
+            <p></p>
+            <label>Administrador</label>
+            <Checkbox
+              checked={checked}
+              onChange={handleChange}
+              inputProps={{ 'aria-label': 'primary checkbox' }}
+            />
+<p></p>
+            <Button align="center" type="button" onClick={handleClickAgregar} >
+              Guardar
+             </Button>
+
+          </div>
+        </Modal>
       </main>
     </div>
   );
