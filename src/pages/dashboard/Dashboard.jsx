@@ -154,6 +154,7 @@ export default function Dashboard({ history }) {
   const [open, setOpen] = useState(true);
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   const [mostrandoDetalles, setMostrandoDetalles] = useState(false);
+  const [mostrarRegistrar, setMostrarRegistrar] = useState(false);
   const [modalStyle] = useState(getModalStyle);
   const [desactivar, setDesactivar] = useState(0);
 
@@ -269,6 +270,17 @@ export default function Dashboard({ history }) {
     console.log("test" + key);
   };
 
+  /*  === PopUp URegistrar suario ===  */
+  const abrirRegistrar = (event) => {
+    event.preventDefault();
+    setMostrarRegistrar(true);
+    console.log("test");
+  
+  };
+
+
+
+
   /*
    *HEADER DE LA PAGINA
    *QUE INDICA QUE ADMINISRADOR
@@ -279,7 +291,7 @@ export default function Dashboard({ history }) {
       <AMDrawerPaper
         titulo={`¡Bienvenido ${
           !!userAdmin && !!userAdmin.name ? userAdmin.name : ""
-        }!`}
+          }!`}
       />
 
       <Button
@@ -287,9 +299,19 @@ export default function Dashboard({ history }) {
         // fullWidth
         variant="contained"
         color="primary"
+        onClick={abrirRegistrar}
       >
         Agregar Nuevo usuario
       </Button>
+
+      <Modal
+        open={mostrandoDetalles}
+        onClose={ocultarDetalles}
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+      ></Modal>
+
+      
       <br></br>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
@@ -317,15 +339,15 @@ export default function Dashboard({ history }) {
                           {!!user && user.admin == 0 ? (
                             <strong>Mensajería</strong>
                           ) : (
-                            <strong>Administrador</strong>
-                          )}
+                              <strong>Administrador</strong>
+                            )}
                         </TableCell>
                         <TableCell align="center">
                           {!!user && user.deactivated == 0 ? (
                             <strong>Activo</strong>
                           ) : (
-                            <i>Inactivo</i>
-                          )}
+                              <i>Inactivo</i>
+                            )}
                         </TableCell>
                         <TableCell align="center">
                           <button
@@ -354,50 +376,50 @@ export default function Dashboard({ history }) {
                     {!!usuarioSelec.admin == 0 ? (
                       <h3>Tipo de usuario: Mensajeria</h3>
                     ) : (
-                      <h3>Tipo de usuario: Administrador</h3>
-                    )}
+                        <h3>Tipo de usuario: Administrador</h3>
+                      )}
                     <h3>Fecha de Creacion: {usuarioSelec.creation_ts}</h3>
                     <h3>Display name: {usuarioSelec.displayname}</h3>
 
                     {!!desactivar == 1 ? (
                       <div>
-                        ¿Nuevamente de click en el botón para confirmar la
-                        acción?
+                        <h3>¿Nuevamente de click en el botón para confirmar la
+                        acción? </h3>
                       </div>
                     ) : (
-                      ""
-                    )}
+                        ""
+                      )}
 
                     {!!usuarioSelec.deactivated == 0 ? (
                       <strong>
-                        <button type="button" onClick={postDesactivaUser}>
+                        <Button variant="contained" color="primary" align="center" type="button" onClick={postDesactivaUser} >
                           DESACTIVAR
-                        </button>{" "}
+                        </Button>{" "}
                       </strong>
                     ) : (
-                      <i>
-                        <strong>
-                          <button type="button">ACTIVAR</button>{" "}
-                        </strong>
-                      </i>
-                    )}
+                        <i>
+                          <strong>
+                            <Button type="button">ACTIVAR</Button>{" "}
+                          </strong>
+                        </i>
+                      )}
                   </div>
                 ) : (
-                  <div>No hay datos del usuario</div>
-                )}
+                    <div>No hay datos del usuario</div>
+                  )}
               </Modal>
             </Grid>
           ) : (
-            <Grid container spacing={1}>
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper className={classes.paper}>
-                  <div>
-                    <h4>No existen usuarios</h4>
-                  </div>
-                </Paper>
+              <Grid container spacing={1}>
+                <Grid item xs={12} md={12} lg={12}>
+                  <Paper className={classes.paper}>
+                    <div>
+                      <h4>No existen usuarios</h4>
+                    </div>
+                  </Paper>
+                </Grid>
               </Grid>
-            </Grid>
-          )}
+            )}
         </Container>
       </main>
     </div>
