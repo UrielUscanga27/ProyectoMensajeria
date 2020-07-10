@@ -22,6 +22,7 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Checkbox from '@material-ui/core/Checkbox';
+import TextField from "@material-ui/core/TextField";
 
 const useStyles = makeStyles((theme) => ({
   // Estilo de la tabla
@@ -314,6 +315,7 @@ export default function Dashboard({ history }) {
       );
       if (response.data) {
         getUsers()
+        
       }
     } catch (error) {
       const mensaje_detallado = error.response.data.error;
@@ -488,11 +490,34 @@ export default function Dashboard({ history }) {
           aria-describedby="simple-modal-description">
           <div style={modalStyle} className={classes.paper}>
             <h3 align="center" >Registrar Usuarios</h3>
-            <label >Nombre del usuario:  </label>
-            <input onChange={handleNombreUsuarioChange} type="text"></input>
+            
+            <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="usuario"
+                label="Nombre del usuario:"
+                name="usuario"
+                autoComplete="usuario"
+                autoFocus
+                onChange={handleNombreUsuarioChange}
+              />
             <p></p>
-            <lebel >Contraseña: </lebel>
-            <input onChange={handlePasswordUsuarioChange} type="password"></input>
+
+           <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="contrasena"
+                label="Contraseña:"
+                type="password"
+                name="contraseña"
+                autoComplete="contraseña"
+                autoFocus
+                onChange={handlePasswordUsuarioChange}
+              />
             <p></p>
             <label>Administrador</label>
             <Checkbox
@@ -501,7 +526,7 @@ export default function Dashboard({ history }) {
               inputProps={{ 'aria-label': 'primary checkbox' }}
             />
 <p></p>
-            <Button align="center" type="button" onClick={handleClickAgregar} >
+            <Button color="primary" align="center" type="button" onClick={handleClickAgregar} >
               Guardar
              </Button>
 
