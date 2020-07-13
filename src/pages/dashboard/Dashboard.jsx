@@ -162,6 +162,7 @@ export default function Dashboard({ history }) {
   const [desactivar, setDesactivar] = useState(0);
   const [nombreUser, setnombreUser] = useState("");
   const [passwordUsuario, setpasswordUsuario] = useState("");
+  const [passwordVerificar, setpasswordVerificar] = useState("")
   const [checked, setChecked] = React.useState(true);
 
   const handleNombreUsuarioChange = (event) => {
@@ -173,6 +174,12 @@ export default function Dashboard({ history }) {
     const { value } = event.currentTarget;
     console.log(value);
     setpasswordUsuario(value);
+  };
+
+  const handlePasswordVerificarChange = (event) => {
+    const { value } = event.currentTarget;
+    console.log(value);
+    setpasswordVerificar(value);
   };
 
   const handleChange = (event) => {
@@ -299,6 +306,9 @@ export default function Dashboard({ history }) {
    *A MATRIX.
    */
 
+ 
+
+
   async function putAgregar() {
     try {
       const data = {
@@ -313,11 +323,13 @@ export default function Dashboard({ history }) {
         `${BASEURL}${ENDPOINT_USER}/@${nombreUser}:${DOMINIO}`,data,
         config
       );
-      if (response.data) {
-        getUsers()
+      if (passwordUsuario == passwordVerificar && response.data) {
+        getUsers();
+        setMostrarRegistrar(false);
         
       }
     } catch (error) {
+      setErrorMessage("Las contraseñas no coinciden");
       const mensaje_detallado = error.response.data.error;
       setErrorMessage(mensaje_detallado);
       setHasError(true);
@@ -515,8 +527,22 @@ export default function Dashboard({ history }) {
                 type="password"
                 name="contraseña"
                 autoComplete="contraseña"
-                autoFocus
+               // autoFocus
                 onChange={handlePasswordUsuarioChange}
+              />
+            <p></p>
+            <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="contrasenaVerificar"
+                label="Verificar Contraseña:"
+                type="password"
+                name="contraseñaVerificar"
+                autoComplete="contraseñaVerificar"
+               // autoFocus
+                onChange={handlePasswordVerificarChange}
               />
             <p></p>
             <label>Administrador</label>
@@ -526,7 +552,9 @@ export default function Dashboard({ history }) {
               inputProps={{ 'aria-label': 'primary checkbox' }}
             />
 <p></p>
-            <Button color="primary" align="center" type="button" onClick={handleClickAgregar} >
+            <Button color="primary" align="center" type="button" onClick= {handleClickAgregar}
+
+             >
               Guardar
              </Button>
 
