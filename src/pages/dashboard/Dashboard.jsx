@@ -21,7 +21,7 @@ import TableCell from "@material-ui/core/TableCell";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
 
 const useStyles = makeStyles((theme) => ({
@@ -162,15 +162,9 @@ export default function Dashboard({ history }) {
   const [desactivar, setDesactivar] = useState(0);
   const [nombreUser, setnombreUser] = useState("");
   const [passwordUsuario, setpasswordUsuario] = useState("");
-  const [passwordVerificar, setpasswordVerificar] = useState("")
+  const [passwordVerificar, setpasswordVerificar] = useState("");
   const [checked, setChecked] = React.useState(true);
-
   const [fechaDeCreacion, setFechaDeCreacion] = useState(null);
-
-  
-
-  
-
 
   const handleNombreUsuarioChange = (event) => {
     const { value } = event.currentTarget;
@@ -213,9 +207,6 @@ export default function Dashboard({ history }) {
     setUserAdmin(JSON.parse(user));
     getUsers();
   }, []);
-
-
-
 
   /* ---- ---- ----*/
   /*
@@ -266,7 +257,13 @@ export default function Dashboard({ history }) {
       if (response.data) {
         setUsuarioSelec(response.data);
         const fecha = new Date(parseInt(response.data.creation_ts, 10) * 1000);
-        setFechaDeCreacion(fecha);
+        setFechaDeCreacion(
+          mostrarFechaCreacion(
+            fecha.getDay(),
+            fecha.getMonth(),
+            fecha.getFullYear()
+          )
+        );
       }
     } catch (error) {
       const mensaje_detallado = error.response.data.error;
@@ -308,34 +305,29 @@ export default function Dashboard({ history }) {
     }
   }
 
-
   /*
    *FUNCION OCUPADA PARA CONSUMIR
    *EL SERVICIO DE AGREGAR USUARIOS
    *A MATRIX.
    */
 
- 
-
-
   async function putAgregar() {
     try {
       const data = {
-        password: passwordUsuario
-      
+        password: passwordUsuario,
       };
       const config = {
         headers: { Authorization: `Bearer ${token}` },
       };
 
       const response = await axios.put(
-        `${BASEURL}${ENDPOINT_USER}/@${nombreUser}:${DOMINIO}`,data,
+        `${BASEURL}${ENDPOINT_USER}/@${nombreUser}:${DOMINIO}`,
+        data,
         config
       );
       if (passwordUsuario == passwordVerificar && response.data) {
         getUsers();
         setMostrarRegistrar(false);
-        
       }
     } catch (error) {
       setErrorMessage("Las contraseñas no coinciden");
@@ -345,9 +337,6 @@ export default function Dashboard({ history }) {
       console.error(mensaje_detallado);
     }
   }
-
-
-
 
   /*  === PopUp Usuario ===  */
   const abrirDetallesUsuario = (event) => {
@@ -359,16 +348,36 @@ export default function Dashboard({ history }) {
     console.log("test" + key);
   };
 
+  function mostrarFechaCreacion(dia, mes, anio) {
+    //Identificacion del día
+    switch (dia) {
+      case 0:
+        dia = "Lunes";
+        break;
+      case 1:
+        dia = "Martes";
+        break;
+    }
+
+    //Identificación del mes
+    switch (mes) {
+      case 0:
+        mes = "Enero";
+        break;
+      case 1:
+        dia = "Febrero";
+        break;
+    }
+
+    return dia + "-" + mes + "-" + anio;
+  }
+
   /*  === PopUp URegistrar suario ===  */
   const abrirRegistrar = (event) => {
     event.preventDefault();
     setMostrarRegistrar(true);
     console.log("test");
-
   };
-
-
-
 
   /*
    *HEADER DE LA PAGINA
@@ -380,13 +389,11 @@ export default function Dashboard({ history }) {
       <AMDrawerPaper
         titulo={`¡Bienvenido  ${
           !!userAdmin && !!userAdmin.name ? userAdmin.name : ""
-          }!`}
+        }!`}
       />
-
 
       <br></br>
       <main className={classes.content}>
-
         <div className={classes.appBarSpacer} />
         <Button
           type="submit"
@@ -396,10 +403,10 @@ export default function Dashboard({ history }) {
           onClick={abrirRegistrar}
         >
           Agregar Nuevo usuario
-      </Button>
-      <br></br>
-      <p></p>
-   <input placeholder="Search"  fullWidth maxWidth="lg" ></input>
+        </Button>
+        <br></br>
+        <p></p>
+        <input placeholder="Search" fullWidth maxWidth="lg"></input>
         <Container maxWidth="lg" className={classes.container}>
           {!!listaUsuarios ? (
             <Grid container spacing={2}>
@@ -424,28 +431,35 @@ export default function Dashboard({ history }) {
                           {!!user && user.admin == 0 ? (
                             <strong>Mensajería</strong>
                           ) : (
-                              <strong>Administrador</strong>
-                            )}
+                            <strong>Administrador</strong>
+                          )}
                         </TableCell>
                         <TableCell align="center">
                           {!!user && user.deactivated == 0 ? (
                             <strong>Activo</strong>
                           ) : (
-                              <i>Inactivo</i>
-                            )}
+                            <i>Inactivo</i>
+                          )}
                         </TableCell>
                         <TableCell align="center">
                           <button
                             type="button"
                             color="primary"
                             key={user.name}
-                            onClick={abrirDetallesUsuario}>
+                            onClick={abrirDetallesUsuario}
+                          >
                             Detalles
                           </button>
-                         
-                          <Button variant="contained" color="primary" align="center" type="button" onClick={abrirDetallesUsuario} >
-                          Detalles
-                        </Button>
+
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            align="center"
+                            type="button"
+                            onClick={abrirDetallesUsuario}
+                          >
+                            Detalles
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -465,117 +479,132 @@ export default function Dashboard({ history }) {
                     {!!usuarioSelec.admin == 0 ? (
                       <h3>Tipo de usuario: Mensajeria</h3>
                     ) : (
-                        <h3>Tipo de usuario: Administrador</h3>
-                      )}
+                      <h3>Tipo de usuario: Administrador</h3>
+                    )}
                     <h3>Fecha de Creacion: {fechaDeCreacion}</h3>
                     <h3>Display name: {usuarioSelec.displayname}</h3>
 
                     {!!desactivar == 1 ? (
                       <div>
-                        <h3>¿Nuevamente de click en el botón para confirmar la
-                        acción? </h3>
+                        <h3>
+                          ¿Nuevamente de click en el botón para confirmar la
+                          acción?{" "}
+                        </h3>
                       </div>
                     ) : (
-                        ""
-                      )}
+                      ""
+                    )}
 
                     {!!usuarioSelec.deactivated == 0 ? (
                       <strong>
-                        <Button variant="contained" color="primary" align="center" type="button" onClick={postDesactivaUser} >
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          align="center"
+                          type="button"
+                          onClick={postDesactivaUser}
+                        >
                           DESACTIVAR
                         </Button>{" "}
                       </strong>
                     ) : (
-                        <i>
-                          <strong>
-                          <Button variant="contained" color="primary" align="center" type="button"  >
-                          ACTIVAR
-                        </Button>{" "}
-                          </strong>
-                        </i>
-                      )}
+                      <i>
+                        <strong>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            align="center"
+                            type="button"
+                          >
+                            ACTIVAR
+                          </Button>{" "}
+                        </strong>
+                      </i>
+                    )}
                   </div>
                 ) : (
-                    <div>No hay datos del usuario</div>
-                  )}
+                  <div>No hay datos del usuario</div>
+                )}
               </Modal>
-
             </Grid>
           ) : (
-              <Grid container spacing={1}>
-                <Grid item xs={12} md={12} lg={12}>
-                  <Paper className={classes.paper}>
-                    <div>
-                      <h4>No existen usuarios</h4>
-                    </div>
-                  </Paper>
-                </Grid>
+            <Grid container spacing={1}>
+              <Grid item xs={12} md={12} lg={12}>
+                <Paper className={classes.paper}>
+                  <div>
+                    <h4>No existen usuarios</h4>
+                  </div>
+                </Paper>
               </Grid>
-            )}
+            </Grid>
+          )}
         </Container>
         <Modal
           open={mostrarRegistrar}
           onClose={ocultarRegistrar}
           aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description">
+          aria-describedby="simple-modal-description"
+        >
           <div style={modalStyle} className={classes.paper}>
-            <h3 align="center" >Registrar Usuarios</h3>
-            
+            <h3 align="center">Registrar Usuarios</h3>
+
             <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                id="usuario"
-                label="Nombre del usuario:"
-                name="usuario"
-                autoComplete="usuario"
-                autoFocus
-                onChange={handleNombreUsuarioChange}
-              />
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="usuario"
+              label="Nombre del usuario:"
+              name="usuario"
+              autoComplete="usuario"
+              autoFocus
+              onChange={handleNombreUsuarioChange}
+            />
             <p></p>
 
-           <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                id="contrasena"
-                label="Contraseña:"
-                type="password"
-                name="contraseña"
-                autoComplete="contraseña"
-               // autoFocus
-                onChange={handlePasswordUsuarioChange}
-              />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="contrasena"
+              label="Contraseña:"
+              type="password"
+              name="contraseña"
+              autoComplete="contraseña"
+              // autoFocus
+              onChange={handlePasswordUsuarioChange}
+            />
             <p></p>
             <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                id="contrasenaVerificar"
-                label="Verificar Contraseña:"
-                type="password"
-                name="contraseñaVerificar"
-                autoComplete="contraseñaVerificar"
-               // autoFocus
-                onChange={handlePasswordVerificarChange}
-              />
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="contrasenaVerificar"
+              label="Verificar Contraseña:"
+              type="password"
+              name="contraseñaVerificar"
+              autoComplete="contraseñaVerificar"
+              // autoFocus
+              onChange={handlePasswordVerificarChange}
+            />
             <p></p>
             <label>Administrador</label>
             <Checkbox
               checked={checked}
               onChange={handleChange}
-              inputProps={{ 'aria-label': 'primary checkbox' }}
+              inputProps={{ "aria-label": "primary checkbox" }}
             />
-<p></p>
-            <Button color="primary" align="center" type="button" onClick= {handleClickAgregar}
-
-             >
+            <p></p>
+            <Button
+              color="primary"
+              align="center"
+              type="button"
+              onClick={handleClickAgregar}
+            >
               Guardar
-             </Button>
-
+            </Button>
           </div>
         </Modal>
       </main>
