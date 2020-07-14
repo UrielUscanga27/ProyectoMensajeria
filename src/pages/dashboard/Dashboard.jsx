@@ -165,6 +165,13 @@ export default function Dashboard({ history }) {
   const [passwordVerificar, setpasswordVerificar] = useState("")
   const [checked, setChecked] = React.useState(true);
 
+  const [fechaDeCreacion, setFechaDeCreacion] = useState(null);
+
+  
+
+  
+
+
   const handleNombreUsuarioChange = (event) => {
     const { value } = event.currentTarget;
     console.log(value);
@@ -240,7 +247,7 @@ export default function Dashboard({ history }) {
     event.preventDefault();
     putAgregar();
   };
- 
+
   /*
    *FUNCION OCUPADA PARA CONSUMIR
    *EL SERVICIO DE OBTENER LA
@@ -258,6 +265,8 @@ export default function Dashboard({ history }) {
       );
       if (response.data) {
         setUsuarioSelec(response.data);
+        const fecha = new Date(parseInt(response.data.creation_ts, 10) * 1000);
+        setFechaDeCreacion(fecha);
       }
     } catch (error) {
       const mensaje_detallado = error.response.data.error;
@@ -339,6 +348,7 @@ export default function Dashboard({ history }) {
 
 
 
+
   /*  === PopUp Usuario ===  */
   const abrirDetallesUsuario = (event) => {
     event.preventDefault();
@@ -368,7 +378,7 @@ export default function Dashboard({ history }) {
   return (
     <div className={classes.root}>
       <AMDrawerPaper
-        titulo={`¡Bienvenido ${
+        titulo={`¡Bienvenido  ${
           !!userAdmin && !!userAdmin.name ? userAdmin.name : ""
           }!`}
       />
@@ -387,7 +397,9 @@ export default function Dashboard({ history }) {
         >
           Agregar Nuevo usuario
       </Button>
-
+      <br></br>
+      <p></p>
+   <input placeholder="Search"  fullWidth maxWidth="lg" ></input>
         <Container maxWidth="lg" className={classes.container}>
           {!!listaUsuarios ? (
             <Grid container spacing={2}>
@@ -425,11 +437,15 @@ export default function Dashboard({ history }) {
                         <TableCell align="center">
                           <button
                             type="button"
+                            color="primary"
                             key={user.name}
-                            onClick={abrirDetallesUsuario}
-                          >
+                            onClick={abrirDetallesUsuario}>
                             Detalles
                           </button>
+                         
+                          <Button variant="contained" color="primary" align="center" type="button" onClick={abrirDetallesUsuario} >
+                          Detalles
+                        </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -451,7 +467,7 @@ export default function Dashboard({ history }) {
                     ) : (
                         <h3>Tipo de usuario: Administrador</h3>
                       )}
-                    <h3>Fecha de Creacion: {usuarioSelec.creation_ts}</h3>
+                    <h3>Fecha de Creacion: {fechaDeCreacion}</h3>
                     <h3>Display name: {usuarioSelec.displayname}</h3>
 
                     {!!desactivar == 1 ? (
@@ -472,7 +488,9 @@ export default function Dashboard({ history }) {
                     ) : (
                         <i>
                           <strong>
-                            <Button type="button">ACTIVAR</Button>{" "}
+                          <Button variant="contained" color="primary" align="center" type="button"  >
+                          ACTIVAR
+                        </Button>{" "}
                           </strong>
                         </i>
                       )}
