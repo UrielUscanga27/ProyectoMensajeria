@@ -198,6 +198,7 @@ export default function Dashboard({ history }) {
 
   const ocultarDetalles = () => {
     setMostrandoDetalles(false);
+    setDesactivar(0);
   };
   const ocultarRegistrar = () => {
     setMostrarRegistrar(false);
@@ -352,10 +353,25 @@ export default function Dashboard({ history }) {
     //Identificacion del día
     switch (dia) {
       case 0:
-        dia = "Lunes";
+        dia = "Domingo";
         break;
       case 1:
+        dia = "Lunes";
+        break;
+      case 2:
         dia = "Martes";
+        break;
+      case 3:
+        dia = "Miercoles";
+        break;
+      case 4:
+        dia = "Jueves";
+        break;
+      case 5:
+        dia = "Viernes";
+        break;
+      case 6:
+        dia = "Sabado";
         break;
     }
 
@@ -366,6 +382,36 @@ export default function Dashboard({ history }) {
         break;
       case 1:
         dia = "Febrero";
+        break;
+      case 2:
+        mes = "Marzo";
+        break;
+      case 3:
+        dia = "Abrirl";
+        break;
+      case 4:
+        mes = "Mayo";
+        break;
+      case 5:
+        dia = "Junio";
+        break;
+      case 6:
+        mes = "Julio";
+        break;
+      case 7:
+        dia = "Agosto";
+        break;
+      case 8:
+        mes = "Septiembre";
+        break;
+      case 9:
+        dia = "Octubre";
+        break;
+      case 10:
+        mes = "Noviembre";
+        break;
+      case 11:
+        dia = "Disiembre";
         break;
     }
 
@@ -389,7 +435,7 @@ export default function Dashboard({ history }) {
       <AMDrawerPaper
         titulo={`¡Bienvenido  ${
           !!userAdmin && !!userAdmin.name ? userAdmin.name : ""
-        }!`}
+          }!`}
       />
 
       <br></br>
@@ -431,15 +477,15 @@ export default function Dashboard({ history }) {
                           {!!user && user.admin == 0 ? (
                             <strong>Mensajería</strong>
                           ) : (
-                            <strong>Administrador</strong>
-                          )}
+                              <strong>Administrador</strong>
+                            )}
                         </TableCell>
                         <TableCell align="center">
                           {!!user && user.deactivated == 0 ? (
                             <strong>Activo</strong>
                           ) : (
-                            <i>Inactivo</i>
-                          )}
+                              <i>Inactivo</i>
+                            )}
                         </TableCell>
                         <TableCell align="center">
                           <button
@@ -451,15 +497,6 @@ export default function Dashboard({ history }) {
                             Detalles
                           </button>
 
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            align="center"
-                            type="button"
-                            onClick={abrirDetallesUsuario}
-                          >
-                            Detalles
-                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -479,8 +516,8 @@ export default function Dashboard({ history }) {
                     {!!usuarioSelec.admin == 0 ? (
                       <h3>Tipo de usuario: Mensajeria</h3>
                     ) : (
-                      <h3>Tipo de usuario: Administrador</h3>
-                    )}
+                        <h3>Tipo de usuario: Administrador</h3>
+                      )}
                     <h3>Fecha de Creacion: {fechaDeCreacion}</h3>
                     <h3>Display name: {usuarioSelec.displayname}</h3>
 
@@ -492,8 +529,8 @@ export default function Dashboard({ history }) {
                         </h3>
                       </div>
                     ) : (
-                      ""
-                    )}
+                        ""
+                      )}
 
                     {!!usuarioSelec.deactivated == 0 ? (
                       <strong>
@@ -508,36 +545,36 @@ export default function Dashboard({ history }) {
                         </Button>{" "}
                       </strong>
                     ) : (
-                      <i>
-                        <strong>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            align="center"
-                            type="button"
-                          >
-                            ACTIVAR
+                        <i>
+                          <strong>
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              align="center"
+                              type="button"
+                            >
+                              ACTIVAR
                           </Button>{" "}
-                        </strong>
-                      </i>
-                    )}
+                          </strong>
+                        </i>
+                      )}
                   </div>
                 ) : (
-                  <div>No hay datos del usuario</div>
-                )}
+                    <div>No hay datos del usuario</div>
+                  )}
               </Modal>
             </Grid>
           ) : (
-            <Grid container spacing={1}>
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper className={classes.paper}>
-                  <div>
-                    <h4>No existen usuarios</h4>
-                  </div>
-                </Paper>
+              <Grid container spacing={1}>
+                <Grid item xs={12} md={12} lg={12}>
+                  <Paper className={classes.paper}>
+                    <div>
+                      <h4>No existen usuarios</h4>
+                    </div>
+                  </Paper>
+                </Grid>
               </Grid>
-            </Grid>
-          )}
+            )}
         </Container>
         <Modal
           open={mostrarRegistrar}
