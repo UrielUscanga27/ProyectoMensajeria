@@ -21,6 +21,7 @@ import TableCell from "@material-ui/core/TableCell";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+import TablePagination from "@material-ui/core/TablePagination";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
 
@@ -144,7 +145,7 @@ export default function Dashboard({ history }) {
   const [token, setToken] = useLocalStorage("timestamp", null);
   const [user, setUser] = useLocalStorage("user", null);
   const [userAdmin, setUserAdmin] = useState(null);
-  const [listaUsuarios, setListaUsuarios] = useState(null);
+  const [listaUsuarios, setListaUsuarios] = useState(0);
   const [usuarioSelec, setUsuarioSelec] = useState(null);
   const BASEURL = "https://matrix.imperiomonarcas.com";
   const DOMINIO = "imperiomonarcas.com";
@@ -165,6 +166,9 @@ export default function Dashboard({ history }) {
   const [passwordVerificar, setpasswordVerificar] = useState("");
   const [checked, setChecked] = React.useState(true);
   const [fechaDeCreacion, setFechaDeCreacion] = useState(null);
+
+  const [pagina, setPagina] = useState(0);
+  const [filasPorPagina, setFilasPorPagina] = useState(10);
 
   const handleNombreUsuarioChange = (event) => {
     const { value } = event.currentTarget;
@@ -240,6 +244,20 @@ export default function Dashboard({ history }) {
     putAgregar();
   };
 
+  /* Agregando el páginado */
+  const handleChangePage = (event, newPage) => {
+    setPagina(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setFilasPorPagina(parseInt(event.target.value, 10));
+    setPagina(0);
+  };
+
+  const emptyRows =
+    filasPorPagina -
+    Math.min(filasPorPagina, listaUsuarios.length - pagina * filasPorPagina);
+
   /*
    *FUNCION OCUPADA PARA CONSUMIR
    *EL SERVICIO DE OBTENER LA
@@ -260,7 +278,7 @@ export default function Dashboard({ history }) {
         const fecha = new Date(parseInt(response.data.creation_ts, 10) * 1000);
         setFechaDeCreacion(
           mostrarFechaCreacion(
-            fecha.getDay(),
+            fecha.getDate(),
             fecha.getMonth(),
             fecha.getFullYear()
           )
@@ -373,8 +391,9 @@ export default function Dashboard({ history }) {
       case 6:
         dia = "Sabado";
         break;
+      default:
+        break;
     }
-
     //Identificación del mes
     switch (mes) {
       case 0:
@@ -387,7 +406,7 @@ export default function Dashboard({ history }) {
         mes = "Marzo";
         break;
       case 3:
-        dia = "Abrirl";
+        dia = "Abril";
         break;
       case 4:
         mes = "Mayo";
@@ -411,10 +430,11 @@ export default function Dashboard({ history }) {
         mes = "Noviembre";
         break;
       case 11:
-        dia = "Disiembre";
+        dia = "Diciembre";
+        break;
+      default:
         break;
     }
-
     return dia + "-" + mes + "-" + anio;
   }
 
@@ -435,24 +455,22 @@ export default function Dashboard({ history }) {
       <AMDrawerPaper
         titulo={`¡Bienvenido  ${
           !!userAdmin && !!userAdmin.name ? userAdmin.name : ""
-          }!`}
+        }!`}
       />
-
-      <br></br>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
-        <Button
-          type="submit"
-          // fullWidth
-          variant="contained"
-          color="primary"
-          onClick={abrirRegistrar}
-        >
-          Agregar Nuevo usuario
-        </Button>
-        <br></br>
-        <p></p>
-        <input placeholder="Search" fullWidth maxWidth="lg"></input>
+        <Container maxWidth="lg" className={classes.container}>
+          <Button
+            type="submit"
+            // fullWidth
+            variant="contained"
+            color="primary"
+            onClick={abrirRegistrar}
+          >
+            Agregar Nuevo usuario
+          </Button>
+          <input placeholder="Search" fullWidth maxWidth="lg"></input>
+        </Container>
         <Container maxWidth="lg" className={classes.container}>
           {!!listaUsuarios ? (
             <Grid container spacing={2}>
@@ -467,41 +485,59 @@ export default function Dashboard({ history }) {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {listaUsuarios.map((user) => (
-                      <TableRow key={user.name}>
-                        <TableCell component="th" scope="row" align="center">
-                          {user.name}
-                        </TableCell>
-                        <TableCell align="center">
-                          {" "}
-                          {!!user && user.admin == 0 ? (
-                            <strong>Mensajería</strong>
-                          ) : (
+                    {listaUsuarios
+                      .slice(
+                        pagina * filasPorPagina,
+                        pagina * filasPorPagina + filasPorPagina
+                      )
+                      .map((user) => (
+                        <TableRow key={user.name}>
+                          <TableCell component="th" scope="row" align="center">
+                            {user.name}
+                          </TableCell>
+                          <TableCell align="center">
+                            {" "}
+                            {!!user && user.admin == 0 ? (
+                              <strong>Mensajería</strong>
+                            ) : (
                               <strong>Administrador</strong>
                             )}
-                        </TableCell>
-                        <TableCell align="center">
-                          {!!user && user.deactivated == 0 ? (
-                            <strong>Activo</strong>
-                          ) : (
+                          </TableCell>
+                          <TableCell align="center">
+                            {!!user && user.deactivated == 0 ? (
+                              <strong>Activo</strong>
+                            ) : (
                               <i>Inactivo</i>
                             )}
-                        </TableCell>
-                        <TableCell align="center">
-                          <button
-                            type="button"
-                            color="primary"
-                            key={user.name}
-                            onClick={abrirDetallesUsuario}
-                          >
-                            Detalles
-                          </button>
-
-                        </TableCell>
+                          </TableCell>
+                          <TableCell align="center">
+                            <button
+                              type="button"
+                              color="primary"
+                              key={user.name}
+                              onClick={abrirDetallesUsuario}
+                            >
+                              Detalles
+                            </button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    {emptyRows > 0 && (
+                      <TableRow style={{ height: 53 * emptyRows }}>
+                        <TableCell colSpan={6} />
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </Table>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25]}
+                  component="div"
+                  count={listaUsuarios.length}
+                  page={pagina}
+                  onChangePage={handleChangePage}
+                  rowsPerPage={filasPorPagina}
+                  onChangeRowsPerPage={handleChangeRowsPerPage}
+                />
               </TableContainer>
 
               <Modal
@@ -516,8 +552,8 @@ export default function Dashboard({ history }) {
                     {!!usuarioSelec.admin == 0 ? (
                       <h3>Tipo de usuario: Mensajeria</h3>
                     ) : (
-                        <h3>Tipo de usuario: Administrador</h3>
-                      )}
+                      <h3>Tipo de usuario: Administrador</h3>
+                    )}
                     <h3>Fecha de Creacion: {fechaDeCreacion}</h3>
                     <h3>Display name: {usuarioSelec.displayname}</h3>
 
@@ -529,8 +565,8 @@ export default function Dashboard({ history }) {
                         </h3>
                       </div>
                     ) : (
-                        ""
-                      )}
+                      ""
+                    )}
 
                     {!!usuarioSelec.deactivated == 0 ? (
                       <strong>
@@ -545,36 +581,36 @@ export default function Dashboard({ history }) {
                         </Button>{" "}
                       </strong>
                     ) : (
-                        <i>
-                          <strong>
-                            <Button
-                              variant="contained"
-                              color="primary"
-                              align="center"
-                              type="button"
-                            >
-                              ACTIVAR
+                      <i>
+                        <strong>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            align="center"
+                            type="button"
+                          >
+                            ACTIVAR
                           </Button>{" "}
-                          </strong>
-                        </i>
-                      )}
+                        </strong>
+                      </i>
+                    )}
                   </div>
                 ) : (
-                    <div>No hay datos del usuario</div>
-                  )}
+                  <div>No hay datos del usuario</div>
+                )}
               </Modal>
             </Grid>
           ) : (
-              <Grid container spacing={1}>
-                <Grid item xs={12} md={12} lg={12}>
-                  <Paper className={classes.paper}>
-                    <div>
-                      <h4>No existen usuarios</h4>
-                    </div>
-                  </Paper>
-                </Grid>
+            <Grid container spacing={1}>
+              <Grid item xs={12} md={12} lg={12}>
+                <Paper className={classes.paper}>
+                  <div>
+                    <h4>No existen usuarios</h4>
+                  </div>
+                </Paper>
               </Grid>
-            )}
+            </Grid>
+          )}
         </Container>
         <Modal
           open={mostrarRegistrar}
