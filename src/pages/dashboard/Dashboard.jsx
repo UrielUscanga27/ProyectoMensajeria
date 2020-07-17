@@ -146,6 +146,7 @@ export default function Dashboard({ history }) {
   const [user, setUser] = useLocalStorage("user", null);
   const [userAdmin, setUserAdmin] = useState(null);
   const [listaUsuarios, setListaUsuarios] = useState(0);
+  const [listaUsuariosRespaldo, setListaUsuariosRespaldo] = useState(0);
   const [usuarioSelec, setUsuarioSelec] = useState(null);
   const BASEURL = "https://matrix.imperiomonarcas.com";
   const DOMINIO = "imperiomonarcas.com";
@@ -168,10 +169,10 @@ export default function Dashboard({ history }) {
   const [checked, setChecked] = React.useState(true);
   const [fechaDeCreacion, setFechaDeCreacion] = useState(null);
   const [mostrarSalas, setMostrarSalas] = useState(false);
-  
 
   const [pagina, setPagina] = useState(0);
   const [filasPorPagina, setFilasPorPagina] = useState(10);
+  const [busqueda, setBusqueda] = useState("");
 
   const handleNombreUsuarioChange = (event) => {
     const { value } = event.currentTarget;
@@ -239,6 +240,7 @@ export default function Dashboard({ history }) {
       );
       if (response.data.total > 0) {
         setListaUsuarios(response.data.users);
+        setListaUsuariosRespaldo(response.data.users);
       }
     } catch (error) {
       const mensaje_detallado = error.response.data.error;
@@ -364,27 +366,23 @@ export default function Dashboard({ history }) {
       console.error(mensaje_detallado);
     }
   }
- /*
-    *FUNCION OCUPADA PARA CONSUMIR
-    *EL SERVICIO DE ENLISTAR SALAS DE
-    *USUARIOS
-    */
+  /*
+   *FUNCION OCUPADA PARA CONSUMIR
+   *EL SERVICIO DE ENLISTAR SALAS DE
+   *USUARIOS
+   */
 
-   async function getSalas() {
+  async function getSalas() {
     try {
       const config = {
         headers: { Authorization: `Bearer ${token}` },
       };
-      const response = await axios.get(
-        `${BASEURL}${ENDPOINT_SALAS}`,
-        config
-      );
+      const response = await axios.get(`${BASEURL}${ENDPOINT_SALAS}`, config);
 
       if (response.data) {
         setUsuarioSelec(response.data);
         setMostrarSalas();
       }
-
     } catch (error) {
       const mensaje_detallado = error.response.data.error;
       setErrorMessage(mensaje_detallado);
@@ -393,9 +391,8 @@ export default function Dashboard({ history }) {
     }
   }
 
-  
   /*  === PopUp Salas ===  */
-  const  abrirSalas = (event) => {
+  const abrirSalas = (event) => {
     event.preventDefault();
     const { key } = event._targetInst;
 
@@ -403,7 +400,6 @@ export default function Dashboard({ history }) {
     setMostrarSalas(true);
     console.log("test" + key);
   };
-
 
   /*  === PopUp Usuario ===  */
   const abrirDetallesUsuario = (event) => {
@@ -413,6 +409,28 @@ export default function Dashboard({ history }) {
     getInfoUser(key);
     setMostrandoDetalles(true);
     console.log("test" + key);
+  };
+
+  const realizarBusqueda = (event) => {
+    event.preventDefault();
+    var text = event.target.value;
+    setListaUsuarios(listaUsuariosRespaldo);
+    if (text !== "") {
+      if (text.toLowerCase().indexOf("administrador")) {
+        const nuevosUsuarios = listaUsuarios.filter(function (item) {
+          return item.admin === 1;
+        });
+        setListaUsuarios(nuevosUsuarios);
+      } else {
+        const nuevosUsuarios = listaUsuarios.filter(function (item) {
+          const itemNombre = item.name.toLowerCase();
+          const textNombre = text.toLowerCase();
+          return itemNombre.indexOf(textNombre) > -1;
+        });
+        setListaUsuarios(nuevosUsuarios);
+      }
+    }
+    setBusqueda(text);
   };
 
   function mostrarFechaCreacion(dia, mes, anio) {
@@ -506,18 +524,32 @@ export default function Dashboard({ history }) {
         }!`}
       />
       <main className={classes.content}>
-        <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
-          <Button
-            type="submit"
-            // fullWidth
-            variant="contained"
-            color="primary"
-            onClick={abrirRegistrar}
-          >
-            Agregar Nuevo usuario
-          </Button>
-          <input placeholder="Search" fullWidth maxWidth="lg"></input>
+          <Grid container spacing={1}>
+            <Grid item xs={3}>
+              <Button
+                type="submit"
+                // fullWidth
+                variant="contained"
+                color="primary"
+                onClick={abrirRegistrar}
+              >
+                Agregar Nuevo usuario
+              </Button>
+            </Grid>
+            <Grid item xs={3}></Grid>
+            <Grid item xs={3}></Grid>
+            <Grid item xs={3}>
+              <TextField
+                label="Buscar usuario"
+                name="buscar"
+                autoComplete="Buscar usuario"
+                value={busqueda}
+                onChange={realizarBusqueda}
+                floatingLabelFixed
+              />
+            </Grid>
+          </Grid>
         </Container>
         <Container maxWidth="lg" className={classes.container}>
           {!!listaUsuarios ? (
@@ -574,7 +606,7 @@ export default function Dashboard({ history }) {
                               type="button"
                               color="primary"
                               key={user.name}
-                             onClick={abrirSalas}
+                              onClick={abrirSalas}
                             >
                               Salas
                             </button>
@@ -614,7 +646,7 @@ export default function Dashboard({ history }) {
                       <h3>Tipo de usuario: Administrador</h3>
                     )}
                     <h3>Fecha de Creacion: {fechaDeCreacion}</h3>
-                    <h3>Display name: {usuarioSelec.displayname}</h3>
+                    <h3>Nombre a mostrar: {usuarioSelec.displayname}</h3>
 
                     {!!desactivar == 1 ? (
                       <div>
@@ -640,18 +672,7 @@ export default function Dashboard({ history }) {
                         </Button>{" "}
                       </strong>
                     ) : (
-                      <i>
-                        <strong>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            align="center"
-                            type="button"
-                          >
-                            ACTIVAR
-                          </Button>{" "}
-                        </strong>
-                      </i>
+                      <strong>Usuario Inactivo</strong>
                     )}
                   </div>
                 ) : (
@@ -672,21 +693,17 @@ export default function Dashboard({ history }) {
           )}
         </Container>
 
-
         <Modal
           open={mostrarSalas}
-         onClose={ocultarSalas}
+          onClose={ocultarSalas}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         >
           <div style={modalStyle} className={classes.paper}>
             <h3 align="center">Salas de Usuarios</h3>
-          <h3> las salas son : {mostrarSalas}</h3>
-
+            <h3> las salas son : {mostrarSalas}</h3>
           </div>
         </Modal>
-
-
 
         <Modal
           open={mostrarRegistrar}
