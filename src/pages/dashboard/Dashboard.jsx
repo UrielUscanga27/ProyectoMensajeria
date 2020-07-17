@@ -152,6 +152,7 @@ export default function Dashboard({ history }) {
   const ENDPOINT_USER = "/_synapse/admin/v2/users";
   const ENDPOINT_ALLUSERS = "/_synapse/admin/v2/users?deactivated=true";
   const ENDPOINT_DESACTIVAR = "/_synapse/admin/v1/deactivate";
+  const ENDPOINT_SALAS = "/_matrix/client/r0/joined_rooms";
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const classes = useStyles();
@@ -166,6 +167,8 @@ export default function Dashboard({ history }) {
   const [passwordVerificar, setpasswordVerificar] = useState("");
   const [checked, setChecked] = React.useState(true);
   const [fechaDeCreacion, setFechaDeCreacion] = useState(null);
+  const [mostrarSalas, setMostrarSalas] = useState(false);
+  
 
   const [pagina, setPagina] = useState(0);
   const [filasPorPagina, setFilasPorPagina] = useState(10);
@@ -206,6 +209,11 @@ export default function Dashboard({ history }) {
   };
   const ocultarRegistrar = () => {
     setMostrarRegistrar(false);
+  };
+
+  const ocultarSalas = () => {
+    setMostrarSalas(false);
+    setDesactivar(0);
   };
 
   useEffect(() => {
@@ -356,6 +364,46 @@ export default function Dashboard({ history }) {
       console.error(mensaje_detallado);
     }
   }
+ /*
+    *FUNCION OCUPADA PARA CONSUMIR
+    *EL SERVICIO DE ENLISTAR SALAS DE
+    *USUARIOS
+    */
+
+   async function getSalas() {
+    try {
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+      const response = await axios.get(
+        `${BASEURL}${ENDPOINT_SALAS}`,
+        config
+      );
+
+      if (response.data) {
+        setUsuarioSelec(response.data);
+        setMostrarSalas();
+      }
+
+    } catch (error) {
+      const mensaje_detallado = error.response.data.error;
+      setErrorMessage(mensaje_detallado);
+      setHasError(true);
+      console.error(mensaje_detallado);
+    }
+  }
+
+  
+  /*  === PopUp Salas ===  */
+  const  abrirSalas = (event) => {
+    event.preventDefault();
+    const { key } = event._targetInst;
+
+    getInfoUser(key);
+    setMostrarSalas(true);
+    console.log("test" + key);
+  };
+
 
   /*  === PopUp Usuario ===  */
   const abrirDetallesUsuario = (event) => {
@@ -482,6 +530,7 @@ export default function Dashboard({ history }) {
                       <TableCell align="center">Tipo de usuario</TableCell>
                       <TableCell align="center">Estatus del usuario</TableCell>
                       <TableCell align="center">Detalles de usuario</TableCell>
+                      <TableCell align="center">Salas de usuario</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -518,6 +567,16 @@ export default function Dashboard({ history }) {
                               onClick={abrirDetallesUsuario}
                             >
                               Detalles
+                            </button>
+                          </TableCell>
+                          <TableCell align="center">
+                            <button
+                              type="button"
+                              color="primary"
+                              key={user.name}
+                             onClick={abrirSalas}
+                            >
+                              Salas
                             </button>
                           </TableCell>
                         </TableRow>
@@ -612,6 +671,23 @@ export default function Dashboard({ history }) {
             </Grid>
           )}
         </Container>
+
+
+        <Modal
+          open={mostrarSalas}
+         onClose={ocultarSalas}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+        >
+          <div style={modalStyle} className={classes.paper}>
+            <h3 align="center">Salas de Usuarios</h3>
+          <h3> las salas son : {mostrarSalas}</h3>
+
+          </div>
+        </Modal>
+
+
+
         <Modal
           open={mostrarRegistrar}
           onClose={ocultarRegistrar}
