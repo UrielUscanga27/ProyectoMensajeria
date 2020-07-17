@@ -416,19 +416,12 @@ export default function Dashboard({ history }) {
     var text = event.target.value;
     setListaUsuarios(listaUsuariosRespaldo);
     if (text !== "") {
-      if (text.toLowerCase().indexOf("administrador")) {
-        const nuevosUsuarios = listaUsuarios.filter(function (item) {
-          return item.admin === 1;
-        });
-        setListaUsuarios(nuevosUsuarios);
-      } else {
-        const nuevosUsuarios = listaUsuarios.filter(function (item) {
-          const itemNombre = item.name.toLowerCase();
-          const textNombre = text.toLowerCase();
-          return itemNombre.indexOf(textNombre) > -1;
-        });
-        setListaUsuarios(nuevosUsuarios);
-      }
+      const nuevosUsuarios = listaUsuarios.filter(function (item) {
+        const itemNombre = item.name.toLowerCase();
+        const textNombre = text.toLowerCase();
+        return itemNombre.indexOf(textNombre) > -1;
+      });
+      setListaUsuarios(nuevosUsuarios);
     }
     setBusqueda(text);
   };
