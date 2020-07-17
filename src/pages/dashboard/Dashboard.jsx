@@ -173,6 +173,7 @@ export default function Dashboard({ history }) {
   const [pagina, setPagina] = useState(0);
   const [filasPorPagina, setFilasPorPagina] = useState(10);
   const [busqueda, setBusqueda] = useState("");
+  const [salasUsuarioSelec, setSalasUsuarioSelec] = useState(0);
 
   const handleNombreUsuarioChange = (event) => {
     const { value } = event.currentTarget;
@@ -372,7 +373,7 @@ export default function Dashboard({ history }) {
    *USUARIOS
    */
 
-  async function getSalas() {
+  async function getSalasUsuario(user) {
     try {
       const config = {
         headers: { Authorization: `Bearer ${token}` },
@@ -380,8 +381,9 @@ export default function Dashboard({ history }) {
       const response = await axios.get(`${BASEURL}${ENDPOINT_SALAS}`, config);
 
       if (response.data) {
-        setUsuarioSelec(response.data);
-        setMostrarSalas();
+        setSalasUsuarioSelec(response.data.joined_rooms);
+        //const listaSalas = response.data.joined_rooms.map((sala) => sala);
+        //console.log("Sala " + listaSalas);
       }
     } catch (error) {
       const mensaje_detallado = error.response.data.error;
@@ -392,11 +394,10 @@ export default function Dashboard({ history }) {
   }
 
   /*  === PopUp Salas ===  */
-  const abrirSalas = (event) => {
+  const obtenerInformacionSalas = (event) => {
     event.preventDefault();
     const { key } = event._targetInst;
-
-    getInfoUser(key);
+    getSalasUsuario(key);
     setMostrarSalas(true);
     console.log("test" + key);
   };
@@ -599,7 +600,8 @@ export default function Dashboard({ history }) {
                               type="button"
                               color="primary"
                               key={user.name}
-                              onClick={abrirSalas}
+                              onClick={obtenerInformacionSalas}
+                              disabled={user.admin == 0}
                             >
                               Salas
                             </button>
@@ -693,8 +695,26 @@ export default function Dashboard({ history }) {
           aria-describedby="simple-modal-description"
         >
           <div style={modalStyle} className={classes.paper}>
-            <h3 align="center">Salas de Usuarios</h3>
-            <h3> las salas son : {mostrarSalas}</h3>
+            <h2 align="center">Salas de conversación</h2>
+            {!!salasUsuarioSelec ? (
+              <div>
+                <h3>
+                  Este usuario participa en {salasUsuarioSelec.length} salas
+                </h3>
+
+                <div>
+                  {salasUsuarioSelec.map((sala) => (
+                    <h4>Identificador de sala: {sala}</h4>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <h3>
+                No es posible mostrar información de las salas de este usuario
+              </h3>
+            )}
+
+            <br />
           </div>
         </Modal>
 
