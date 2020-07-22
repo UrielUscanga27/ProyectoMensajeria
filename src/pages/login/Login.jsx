@@ -95,7 +95,7 @@ Variables y ENDPOINT USADOS
   const URL_LOGIN = `${BASEURL}${ENDPOINT_LOGIN}`;
   const URL_USER = `${BASEURL}${ENDPOINT_USER}`;
 
-  const [passwordVerificar, setpasswordVerificar] = useState("");
+  
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -106,11 +106,7 @@ Variables y ENDPOINT USADOS
   const [token, setToken] = useLocalStorage("timestamp", null);
   const [user, setUser] = useLocalStorage("user", null);
 
-  const handlePasswordVerificarChange = (event) => {
-    const { value } = event.currentTarget;
-    console.log(value);
-    setpasswordVerificar(value);
-  };
+
 
   const handleClickLogin = (event) => {
     event.preventDefault();
@@ -159,7 +155,7 @@ Variables y ENDPOINT USADOS
         response.data.user_id,
         response.data.access_token
       );
-      if (password == passwordVerificar && esAdministrador) {
+      if (esAdministrador) {
         history.replace("/dashboard");
       } else {
         setErrorMessage("No eres administrador");
@@ -256,18 +252,7 @@ PANTALLA DE INICIO DE SESIÓN
                 id="contrasenia"
                 onChange={handlePasswordChange}
               />
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                name="contraseniaVerificar"
-                label="Verificar Contraseña"
-                type="password"
-                id="contraseniaVerificar"
-                onChange={handlePasswordVerificarChange}
-              />
-             
+            
               <Button
                 type="submit"
                 fullWidth
