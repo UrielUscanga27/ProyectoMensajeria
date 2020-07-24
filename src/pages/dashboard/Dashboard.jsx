@@ -154,6 +154,7 @@ export default function Dashboard({ history }) {
   const ENDPOINT_ALLUSERS = "/_synapse/admin/v2/users?deactivated=true";
   const ENDPOINT_DESACTIVAR = "/_synapse/admin/v1/deactivate";
   const ENDPOINT_SALAS = "/_matrix/client/r0/joined_rooms";
+  const ENDPOINT_WHOIS = "/_matrix/client/r0/admin/whois";
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const classes = useStyles();
@@ -174,6 +175,8 @@ export default function Dashboard({ history }) {
   const [filasPorPagina, setFilasPorPagina] = useState(10);
   const [busqueda, setBusqueda] = useState("");
   const [salasUsuarioSelec, setSalasUsuarioSelec] = useState(0);
+
+  const [whoisUsuarioSelec, setWhoisUsuarioSelec] = useState(0);
 
   const handleNombreUsuarioChange = (event) => {
     const { value } = event.currentTarget;
@@ -393,6 +396,29 @@ export default function Dashboard({ history }) {
     }
   }
 
+  /*
+   *FUNCION OCUPADA PARA CONSUMIR
+   *EL SERVICIO DE HISTORIAL
+   */
+
+  async function getWhois(user) {
+    try {
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+      const response = await axios.get(`${BASEURL}${ENDPOINT_WHOIS}/${user}`, config);
+
+      if (response.data.devices !== null) {
+        setWhoisUsuarioSelec(response.data.devices[""].sessions[0].connections.length);
+      }
+    } catch (error) {
+      const mensaje_detallado = error.response.data.error;
+      setErrorMessage(mensaje_detallado);
+      setHasError(true);
+      console.error(mensaje_detallado);
+    }
+  }
+
   /*  === PopUp Salas ===  */
   const obtenerInformacionSalas = (event) => {
     event.preventDefault();
@@ -408,6 +434,7 @@ export default function Dashboard({ history }) {
     const { key } = event._targetInst;
 
     getInfoUser(key);
+    getWhois(key);
     setMostrandoDetalles(true);
     console.log("test" + key);
   };
@@ -642,6 +669,15 @@ export default function Dashboard({ history }) {
                     )}
                     <h3>Fecha de Creacion: {fechaDeCreacion}</h3>
                     <h3>Nombre a mostrar: {usuarioSelec.displayname}</h3>
+
+                    {!!whoisUsuarioSelec ? (
+                     <h3>Total de conexiones: {whoisUsuarioSelec}</h3>
+                     
+  
+                     ) :(
+                       console.log("...")
+             )}
+
 
                     {!!desactivar == 1 ? (
                       <div>
