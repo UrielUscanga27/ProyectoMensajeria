@@ -86,7 +86,7 @@ const useStyles = makeStyles((theme) => ({
 */
 const Login = ({ history }) => {
 /*
-Variables y ENDPOINT USADOS
+DECLARACION DE VARIABLES Y ENDPOINT USADOS
 */
   const classes = useStyles();
   const BASEURL = "https://matrix.imperiomonarcas.com";
@@ -112,7 +112,9 @@ Variables y ENDPOINT USADOS
     event.preventDefault();
     doLogin();
   };
-
+/*
+SE OBTIENE EL VALOR DEL NOMBRE DE USUARIO
+*/
   const handleUsernameChange = (event) => {
     // const value = event.currentTarget.value;
     const { value } = event.currentTarget;
@@ -120,6 +122,9 @@ Variables y ENDPOINT USADOS
     setUsername(value);
   };
 
+/*
+SE OBTIENE EL VALOR DEL PASSWORD 
+*/
   const handlePasswordChange = (event) => {
     const { value } = event.currentTarget;
     console.log(value);
@@ -129,9 +134,11 @@ Variables y ENDPOINT USADOS
   const handleClose = () => {
     setHasError(false);
   };
-/* En esta funcion estan los parametros 
+/* 
+En esta funcion estan los parametros 
 *necesarios para consumir el servicio de login
-*y se guardan dentro de la variable date */
+*y se guardan dentro de la variable data
+ */
   async function doLogin() {
     try {
       const data = {
@@ -142,11 +149,13 @@ Variables y ENDPOINT USADOS
         },
         password: password,
       };
-
       //const response = await axios.post(URL, data);
-      /**Se comparan los datos obtenidos en la variable 
+
+      /*
+      *Se comparan los datos obtenidos en la variable 
       *date y URl_LOGIN para revisar 
-      *si el usuario es administrador de Matrix.*/
+      *si el usuario es administrador de Matrix.
+      */
       const response = await axios.post(URL_LOGIN, data);
       console.log(response);
       setToken(response.data.access_token);

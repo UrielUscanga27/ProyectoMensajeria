@@ -31,6 +31,10 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 650,
   },
 
+  /*
+*ESTILOS
+*/
+
   root: {
     flexGrow: 1,
   },
@@ -121,6 +125,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/* -FUNCION PARA EL MODAL -*/
+
 const drawerWidth = 240;
 
 function getModalStyle() {
@@ -139,7 +145,7 @@ function rand() {
 }
 
 /*
-Variables y ENDPOINT USADOS
+DECLARACION DE VARIABLES Y ENDPOINT USADOS
 */
 export default function Dashboard({ history }) {
   const [token, setToken] = useLocalStorage("timestamp", null);
@@ -178,17 +184,31 @@ export default function Dashboard({ history }) {
 
   const [whoisUsuarioSelec, setWhoisUsuarioSelec] = useState(0);
 
+  /*
+  SE OBTIENE EL VALOR DEL LA VARIABLE NOMBREUSER
+  QUE SE OCUPA EN EL MOMENTO DE AGREGAR UN NUEVO
+  USUARIO AL SERVIDOR
+  */
   const handleNombreUsuarioChange = (event) => {
     const { value } = event.currentTarget;
     console.log(value);
     setnombreUser(value);
   };
+  /*
+  SE OBTIENE EL VALOR DEL LA VARIABLE PASSWORDUSUARIO
+  QUE SE OCUPA EN EL MOMENTO DE AGREGAR UN NUEVO
+  USUARIO AL SERVIDOR
+  */
   const handlePasswordUsuarioChange = (event) => {
     const { value } = event.currentTarget;
     console.log(value);
     setpasswordUsuario(value);
   };
-
+  /*
+  SE OBTIENE EL VALOR DEL LA VARIABLE PASSWORVERIFICAR
+  QUE SE OCUPA EN EL MOMENTO DE AGREGAR UN NUEVO
+  USUARIO AL SERVIDOR
+  */
   const handlePasswordVerificarChange = (event) => {
     const { value } = event.currentTarget;
     console.log(value);
@@ -207,7 +227,9 @@ export default function Dashboard({ history }) {
     setToken("");
     history.replace("/login");
   };
-
+  /*
+  VARIABLES OCUPADAS PARA OCULTAR LOS MODALES
+  */
   const ocultarDetalles = () => {
     setMostrandoDetalles(false);
     setDesactivar(0);
@@ -226,13 +248,12 @@ export default function Dashboard({ history }) {
     getUsers();
   }, []);
 
-  /* ---- ---- ----*/
+  /* ---- ---- ---- ---- ----*/
   /*
    *FUNCION OCUPADA PARA CONSUMIR
    *EL SERVICIO DE ENLISTAR LOS USUARIOS
    *DE MATRIX.
    */
-
   async function getUsers() {
     try {
       const config = {
@@ -289,6 +310,10 @@ export default function Dashboard({ history }) {
       );
       if (response.data) {
         setUsuarioSelec(response.data);
+
+        /* Convirtiendo el valor recuperado de la API 
+      "data.creation_ts" a un formarto de fecha  */
+
         const fecha = new Date(parseInt(response.data.creation_ts, 10) * 1000);
         setFechaDeCreacion(
           mostrarFechaCreacion(
@@ -438,7 +463,10 @@ export default function Dashboard({ history }) {
     setMostrandoDetalles(true);
     console.log("test" + key);
   };
-
+  /*
+  *Metodo para la Busqueda de usuarios 
+  *y administradores
+  */
   const realizarBusqueda = (event) => {
     event.preventDefault();
     var text = event.target.value;
@@ -542,19 +570,21 @@ export default function Dashboard({ history }) {
       <AMDrawerPaper
         titulo={`¡Bienvenido  ${
           !!userAdmin && !!userAdmin.name ? userAdmin.name : ""
-        }!`}
+          }!`}
       />
       <main className={classes.content}>
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={1}>
             <Grid item xs={3}>
+
+              {/* Botton para registrar usuario */}
+
               <Button
                 type="submit"
                 // fullWidth
                 variant="contained"
                 color="primary"
-                onClick={abrirRegistrar}
-              >
+                onClick={abrirRegistrar}>
                 Agregar Nuevo usuario
               </Button>
             </Grid>
@@ -569,10 +599,16 @@ export default function Dashboard({ history }) {
                 onChange={realizarBusqueda}
                 floatingLabelFixed
               />
+
+              {/* Empieza la tabla de usuarios que se encuentan en la mensajeria*/}
+
             </Grid>
           </Grid>
         </Container>
         <Container maxWidth="lg" className={classes.container}>
+
+          {/* Bucle creado para enlistar todos los usuarios que se encuentran en el servidor */}
+
           {!!listaUsuarios ? (
             <Grid container spacing={2}>
               <TableContainer component={Paper}>
@@ -596,22 +632,29 @@ export default function Dashboard({ history }) {
                         <TableRow key={user.name}>
                           <TableCell component="th" scope="row" align="center">
                             {user.name}
+
+                            {/* Recupeacion y pintado de la informacion recuoerada
+                            del seridor Matrix */}
+
                           </TableCell>
                           <TableCell align="center">
                             {" "}
                             {!!user && user.admin == 0 ? (
                               <strong>Mensajería</strong>
                             ) : (
-                              <strong>Administrador</strong>
-                            )}
+                                <strong>Administrador</strong>
+                              )}
                           </TableCell>
                           <TableCell align="center">
                             {!!user && user.deactivated == 0 ? (
                               <strong>Activo</strong>
                             ) : (
-                              <i>Inactivo</i>
-                            )}
+                                <i>Inactivo</i>
+                              )}
                           </TableCell>
+
+                          {/* Botton que muestra los detalle del usuario */}
+
                           <TableCell align="center">
                             <button
                               type="button"
@@ -623,6 +666,10 @@ export default function Dashboard({ history }) {
                             </button>
                           </TableCell>
                           <TableCell align="center">
+
+                            {/* Botton que muestra las salas a las que
+                            pertenece el usuario administrador */}
+
                             <button
                               type="button"
                               color="primary"
@@ -642,6 +689,9 @@ export default function Dashboard({ history }) {
                     )}
                   </TableBody>
                 </Table>
+
+                {/* Paginado de la tabla */}
+
                 <TablePagination
                   rowsPerPageOptions={[5, 10, 25]}
                   component="div"
@@ -652,7 +702,7 @@ export default function Dashboard({ history }) {
                   onChangeRowsPerPage={handleChangeRowsPerPage}
                 />
               </TableContainer>
-
+              {/* Contenido del modal de mostrar detalles */}
               <Modal
                 open={mostrandoDetalles}
                 onClose={ocultarDetalles}
@@ -665,32 +715,31 @@ export default function Dashboard({ history }) {
                     {!!usuarioSelec.admin == 0 ? (
                       <h3>Tipo de usuario: Mensajeria</h3>
                     ) : (
-                      <h3>Tipo de usuario: Administrador</h3>
-                    )}
+                        <h3>Tipo de usuario: Administrador</h3>
+                      )}
                     <h3>Fecha de Creacion: {fechaDeCreacion}</h3>
                     <h3>Nombre a mostrar: {usuarioSelec.displayname}</h3>
 
                     {!!whoisUsuarioSelec ? (
-                     <h3>Total de conexiones: {whoisUsuarioSelec}</h3>
-                     
-  
-                     ) :(
-                       console.log("...")
-             )}
+                      <h3>Total de conexiones: {whoisUsuarioSelec}</h3>
 
+
+                    ) : (
+                        console.log("...")
+                      )}
 
                     {!!desactivar == 1 ? (
                       <div>
                         <h3>
-                          <font color = "red">
-                          ¿Nuevamente de click en el botón para confirmar la
+                          <font color="red">
+                            ¿Nuevamente de click en el botón para confirmar la
                           acción?{" "}
                           </font>
                         </h3>
                       </div>
                     ) : (
-                      ""
-                    )}
+                        ""
+                      )}
 
                     {!!usuarioSelec.deactivated == 0 ? (
                       <strong>
@@ -705,26 +754,28 @@ export default function Dashboard({ history }) {
                         </Button>{" "}
                       </strong>
                     ) : (
-                      <strong>Usuario Inactivo</strong>
-                    )}
+                        <strong>Usuario Inactivo</strong>
+                      )}
                   </div>
                 ) : (
-                  <div>No hay datos del usuario</div>
-                )}
+                    <div>No hay datos del usuario</div>
+                  )}
               </Modal>
             </Grid>
           ) : (
-            <Grid container spacing={1}>
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper className={classes.paper}>
-                  <div>
-                    <h4>No existen usuarios</h4>
-                  </div>
-                </Paper>
+              <Grid container spacing={1}>
+                <Grid item xs={12} md={12} lg={12}>
+                  <Paper className={classes.paper}>
+                    <div>
+                      <h4>No existen usuarios</h4>
+                    </div>
+                  </Paper>
+                </Grid>
               </Grid>
-            </Grid>
-          )}
+            )}
         </Container>
+
+          {/* Contenido del modal de mostrar salas */}
 
         <Modal
           open={mostrarSalas}
@@ -747,14 +798,17 @@ export default function Dashboard({ history }) {
                 </div>
               </div>
             ) : (
-              <h3>
-                No es posible mostrar información de las salas de este usuario
-              </h3>
-            )}
+                <h3>
+                  No es posible mostrar información de las salas de este usuario
+                </h3>
+              )}
 
             <br />
           </div>
         </Modal>
+
+          {/* Contenido del modal para registrar un nuevo
+          usuario para la mensajeria */}
 
         <Modal
           open={mostrarRegistrar}
