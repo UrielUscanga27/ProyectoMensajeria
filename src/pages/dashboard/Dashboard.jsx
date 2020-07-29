@@ -682,8 +682,10 @@ export default function Dashboard({ history }) {
                     {!!desactivar == 1 ? (
                       <div>
                         <h3>
+                          <font color = "red">
                           ¿Nuevamente de click en el botón para confirmar la
                           acción?{" "}
+                          </font>
                         </h3>
                       </div>
                     ) : (
